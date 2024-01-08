@@ -8,7 +8,7 @@ import Hash "mo:base/Hash";
 
 actor {
 
-    var messageId = 0;
+    var messageId : Nat = 0;
 
     public type Content = {
         #Text : Text;
@@ -25,5 +25,20 @@ actor {
 
     private func _hashNat(n : Nat) : Hash.Hash = return Text.hash(Nat.toText(n));
     let wall = HashMap.HashMap<Nat, Message>(0, Nat.equal, _hashNat);
+
+    public shared ({ caller }) func writeMessage(content : Content) : async Nat {
+        let id : Nat = messageId;
+        messageId += 1;
+
+        var newMessage : Message = {
+            content = content;
+            creator = caller;
+            vote = 0
+        };
+
+        wall.put(id, newMessage);
+
+        return id
+    };
 
 }
