@@ -5,6 +5,7 @@ import Text "mo:base/Text";
 import HashMap "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
+import Result "mo:base/Result";
 
 actor {
 
@@ -39,6 +40,19 @@ actor {
         wall.put(id, newMessage);
 
         return id
+    };
+
+    public shared query func getMessage(messageId : Nat) : async Result.Result<Message, Text> {
+        let messageData : ?Message = wall.get(messageId);
+
+        switch (messageData) {
+            case (null) {
+                return #err "The requred message does not exist."
+            };
+            case (?message) {
+                return #ok message
+            }
+        }
     };
 
 }
