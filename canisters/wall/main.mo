@@ -55,4 +55,34 @@ actor {
         }
     };
 
+    public shared ({ caller }) func updateMessage(message : Nat, content : Content) : async Result.Result<(), Text> {
+        var isAuth : Bool = not Principal.isAnonymous(caller);
+        if (not isAuth) {
+            return #err "You must eb authenticated to validate that you are the creator of the message!"
+        };
+
+        let messageData : ?Message = wall.get(messageId);
+
+        switch (messageData) {
+            case (null) {
+                return #err "The requested message does not exist."
+            };
+            case (?message) {
+                if (message.creator != caller) {
+                    return #err "You are not the creator of this message!"
+                };
+
+                let updatedMessage : Message = {
+                    creator = message.creator;
+                    content = content;
+                    vote = message.vote
+                };
+
+                wall.put(messageId, updatedMessage);
+
+                return #ok()
+            }
+        }
+    };
+
 }
