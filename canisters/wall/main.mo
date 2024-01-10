@@ -85,4 +85,22 @@ actor {
         }
     };
 
+    public shared ({ caller }) func deleteMessage(messageId : Nat) : async Result.Result<(), Text> {
+        let messageData : ?Message = wall.get(messageId);
+
+        switch (messageData) {
+            case (null) {
+                return #err "the requested message does not exist."
+            };
+            case (?message) {
+                if (message.creator != caller) {
+                    return #err "You are not the creator of this message!"
+                };
+
+                ignore wall.remove(messageId);
+                return #ok()
+            }
+        }
+    };
+
 }
