@@ -12,7 +12,7 @@ import Array "mo:base/Array";
 
 actor {
 
-    var messageId : Nat = 0;
+    var currentMessageId : Nat = 0;
 
     public type Content = {
         #Text : Text;
@@ -31,8 +31,8 @@ actor {
     let wall = HashMap.HashMap<Nat, Message>(0, Nat.equal, _hashNat);
 
     public shared ({ caller }) func writeMessage(content : Content) : async Nat {
-        let id : Nat = messageId;
-        messageId += 1;
+        let id : Nat = currentMessageId;
+        currentMessageId += 1;
 
         var newMessage : Message = {
             content = content;
@@ -58,7 +58,7 @@ actor {
         }
     };
 
-    public shared ({ caller }) func updateMessage(message : Nat, content : Content) : async Result.Result<(), Text> {
+    public shared ({ caller }) func updateMessage(messageId : Nat, content : Content) : async Result.Result<(), Text> {
         var isAuth : Bool = not Principal.isAnonymous(caller);
         if (not isAuth) {
             return #err "You must eb authenticated to validate that you are the creator of the message!"
