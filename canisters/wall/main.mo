@@ -99,8 +99,8 @@ actor {
 
                 ignore wall.remove(messageId);
                 return #ok()
-            };
-        };
+            }
+        }
     };
 
     public func voteUp(messageId : Nat) : async Result.Result<(), Text> {
@@ -124,7 +124,31 @@ actor {
             }
         };
 
+        return #ok()
+    };
+
+    public func voteDown(messageId : Nat) : async Result.Result<(), Text> {
+        let messageData : ?Message = wall.get(messageId);
+
+        switch (messageData) {
+            case (null) {
+                return #err "The message you are looking for, does not exist!"
+            };
+            case (?message) {
+                let updatedMessage : Message = {
+                    creator = message.creator;
+                    content = message.content;
+                    vote = message.vote
+                };
+
+                wall.put(messageId, updatedMessage);
+
+                return #ok()
+            }
+        };
+
         return #ok();
+
     };
 
 }
