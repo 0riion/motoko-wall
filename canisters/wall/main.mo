@@ -6,6 +6,9 @@ import HashMap "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
 import Result "mo:base/Result";
+import Buffer "mo:base/Buffer";
+import Iter "mo:base/Iter";
+import Array "mo:base/Array";
 
 actor {
 
@@ -103,6 +106,40 @@ actor {
         }
     };
 
+    public func getAllMessages() : async [Message] {
+        let messagesBuff = Buffer.Buffer<Message>(0);
+
+        for (message in wall.vals()) {
+            messagesBuff.add(message)
+        };
+
+        var messages = Buffer.toVarArray<Message>(messagesBuff);
+        var size = messages.size();
+
+        if (size > 0) {
+            size -= 1
+        };
+
+        for (index in Iter.range(0, size)) {
+            var maxIndex = index;
+
+            for (subIndex in Iter.range(0, size)) {
+
+                if (messages[subIndex].vote > messages[index].vote) {
+                    maxIndex := subIndex
+                }
+            };
+
+            let temp = messages[index];
+            messages[maxIndex] := messages[index];
+            messages[index] := temp
+        };
+
+        return Array.freeze<Message>(messages)
+    };
+
+    // votting methods
+
     public func voteUp(messageId : Nat) : async Result.Result<(), Text> {
         let messageData : ?Message = wall.get(messageId);
 
@@ -147,8 +184,7 @@ actor {
             }
         };
 
-        return #ok();
-
+        return #ok()
     };
 
 }
