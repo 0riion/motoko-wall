@@ -15,17 +15,16 @@ actor {
 
     var currentMessageId : Nat = 0;
 
-    public type Content = {
-        #Text : Text;
-        #Image : Blob;
-        #Video : Blob
-    };
-
     type Message = {
         vote : Int;
         content : Content;
-        creator : Principal;
+        creator : Principal
+    };
 
+    type Content = {
+        #Text : Text;
+        #Image : Blob;
+        #Video : Blob
     };
 
     private func _hashNat(n : Nat) : Hash.Hash = return Text.hash(Nat.toText(n));
@@ -34,6 +33,8 @@ actor {
     private func _isOwnerCaller(caller : Principal, owner : Principal) : Bool {
         return caller == owner
     };
+
+    // utils methods
 
     private func _getIncreasedMessage(message : Message) : Message {
         return {
@@ -50,6 +51,8 @@ actor {
             vote = message.vote - 1
         }
     };
+
+    // state methods
 
     public shared ({ caller }) func writeMessage(content : Content) : async Nat {
         let id : Nat = currentMessageId;
