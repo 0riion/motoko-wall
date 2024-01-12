@@ -35,6 +35,22 @@ actor {
         return caller == owner
     };
 
+    private func _getIncreasedMessage(message : Message) : Message {
+        return {
+            creator = message.creator;
+            content = message.content;
+            vote = message.vote + 1
+        }
+    };
+
+    private func _getDecreasedMessage(message : Message) : Message {
+        return {
+            creator = message.creator;
+            content = message.content;
+            vote = message.vote - 1
+        }
+    };
+
     public shared ({ caller }) func writeMessage(content : Content) : async Nat {
         let id : Nat = currentMessageId;
         currentMessageId += 1;
@@ -154,11 +170,7 @@ actor {
             };
 
             case (?message) {
-                let updatedMessage : Message = {
-                    creator = message.creator;
-                    content = message.content;
-                    vote = message.vote + 1
-                };
+                let updatedMessage : Message = _getIncreasedMessage(message);
 
                 wall.put(messageId, updatedMessage);
 
@@ -177,12 +189,7 @@ actor {
                 return #err "The message you are looking for, does not exist!"
             };
             case (?message) {
-                let updatedMessage : Message = {
-                    creator = message.creator;
-                    content = message.content;
-                    vote = message.vote
-                };
-
+                let updatedMessage : Message = _getDecreasedMessage(message);
                 wall.put(messageId, updatedMessage);
 
                 return #ok()
