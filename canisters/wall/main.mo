@@ -9,6 +9,7 @@ import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
+import Bool "mo:base/Bool";
 
 actor {
 
@@ -29,6 +30,10 @@ actor {
 
     private func _hashNat(n : Nat) : Hash.Hash = return Text.hash(Nat.toText(n));
     let wall = HashMap.HashMap<Nat, Message>(0, Nat.equal, _hashNat);
+
+    private func _isOwnerCaller(caller : Principal, owner : Principal) : Bool {
+        return caller == owner
+    };
 
     public shared ({ caller }) func writeMessage(content : Content) : async Nat {
         let id : Nat = currentMessageId;
@@ -71,7 +76,7 @@ actor {
                 return #err "The requested message does not exist."
             };
             case (?message) {
-                if (message.creator != caller) {
+                if (not _isOwnerCaller(message.creator, caller)) {
                     return #err "You are not the creator of this message!"
                 };
 
@@ -96,7 +101,7 @@ actor {
                 return #err "the requested message does not exist."
             };
             case (?message) {
-                if (message.creator != caller) {
+                if (not _isOwnerCaller(message.creator, caller)) {
                     return #err "You are not the creator of this message!"
                 };
 
